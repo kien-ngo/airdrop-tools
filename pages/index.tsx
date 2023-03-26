@@ -10,8 +10,11 @@ const Home: NextPage = () => {
         of receipients
       </div>
       <div className="mx-auto mt-10 flex flex-col">
-        <Link className="btn" href="/send-tokens">
-          Send tokens
+        <Link className="btn" href="/send-native">
+          Send native token
+        </Link>
+        <Link className="btn mt-5" href="/send-tokens">
+          Send ERC20 tokens
         </Link>
         <Link className="btn mt-5" href="/send-nfts">
           Send NFTs

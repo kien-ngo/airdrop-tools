@@ -2,12 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  color-scheme: dark;
+}
+body {
+  color: white;
+  overflow: scroll;
+  /* background: black; */
+}
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: Inter, sans-serif, monospace, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue;
+  font-family: Inter, sans-serif, monospace, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
+    Helvetica Neue;
 }
 
 a {
