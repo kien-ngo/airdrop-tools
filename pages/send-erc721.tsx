@@ -87,7 +87,12 @@ export default function SendNativeTokenPage() {
                       Quantity: {item.quantity}
                     </div>
                     <div className="flex flex-row mt-2">
-                      <button className="border border-white my-auto px-1  hover:bg-green-700 hover:text-white">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(item.address);
+                        }}
+                        className="border border-white my-auto px-1  hover:bg-green-700 hover:text-white"
+                      >
                         Copy addr
                       </button>
                       <button className="border border-white ml-4 my-auto px-1  hover:bg-green-700 hover:text-white">

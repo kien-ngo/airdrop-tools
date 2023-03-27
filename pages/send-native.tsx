@@ -9,16 +9,17 @@ import {
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { useState } from "react";
 import { TEvmAddress } from "../src/types/blockchain";
+import { convertToWei } from "../src/utils/number";
 import { truncateEthAddress } from "../src/utils/string";
 
 const AIRDROP_ERC20_CONTRACT = "0x72e48AEa408642b03f97c6763167955eD429363E";
 
 export default function SendNativeTokenPage() {
-  const { contract, isLoading: loadingContract } = useContract(
-    AIRDROP_ERC20_CONTRACT
-  );
-  const { mutateAsync: airdrop, isLoading: loadingContractWrite } =
-    useContractWrite(contract, "airdrop");
+  // const { contract, isLoading: loadingContract } = useContract(
+  //   AIRDROP_ERC20_CONTRACT
+  // );
+  // const { mutateAsync: airdrop, isLoading: loadingContractWrite } =
+  //   useContractWrite(contract, "airdrop");
   const address = useAddress();
   const { data, isLoading } = useBalance(NATIVE_TOKEN_ADDRESS);
   const [{ data: chainData, error, loading: loadingNetwork }] = useNetwork();
@@ -58,10 +59,12 @@ export default function SendNativeTokenPage() {
           contractAddress={AIRDROP_ERC20_CONTRACT}
           action={(contract) => {
             const recepients = airdropAddresses.map((item) => item.address);
-            const amounts = airdropAddresses.map((item) => item.amount);
+            const amounts = airdropAddresses.map((item) =>
+              convertToWei(item.amount)
+            );
             contract.call(
               "airdrop",
-              NATIVE_TOKEN_ADDRESS,
+              "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
               address,
               recepients,
               amounts

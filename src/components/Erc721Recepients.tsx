@@ -21,20 +21,20 @@ export default function Erc721Recepients({
 }) {
   const [recepients, setRecepients] = useState<RecepientItem[]>([]);
   const {
-    contract,
+    contract: nftContract,
     isLoading: loadingNftContract,
     error: useContractError,
   } = useContract(contractToSend);
-  const { data, isLoading, error } = useOwnedNFTs(contract, tokenOwner);
+  const { data, isLoading, error } = useOwnedNFTs(nftContract, tokenOwner);
   const {
     mutateAsync: transferNFT,
     isLoading: _l,
     error: _err,
-  } = useTransferNFT(contract);
+  } = useTransferNFT(nftContract);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
   const isDisabled =
-    !recepients.length || loadingNftContract || !contract || !data;
+    !recepients.length || loadingNftContract || !nftContract || !data;
   return (
     <div className="flex flex-col mx-auto">
       {!loadingNftContract && !isLoading ? (
@@ -150,7 +150,7 @@ export default function Erc721Recepients({
       ) : (
         <div></div>
       )}
-      {recepients.length > 0 && (
+      {recepients.length > 0 && nftContract && (
         <>
           {/* If user is sending only 1 token then we dont need to use the
           airdrop contract */}
@@ -171,13 +171,13 @@ export default function Erc721Recepients({
               isDisabled={isDisabled}
               contractAddress={AIRDROP_CONTRACT}
               action={async (contract) => {
-                const isApproved = await contract.erc721.isApproved(
+                const isApproved = await nftContract.erc721.isApproved(
                   tokenOwner,
-                  contractToSend
+                  AIRDROP_CONTRACT
                 );
                 if (!isApproved) {
-                  const receipt = await contract.erc721.setApprovalForAll(
-                    contractToSend,
+                  const receipt = await nftContract.erc721.setApprovalForAll(
+                    AIRDROP_CONTRACT,
                     true
                   );
                   console.log(receipt);
