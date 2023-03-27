@@ -6,7 +6,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThirdwebProvider activeChain={"avalanche-fuji"}>
       <div className="flex flex-col">
-        <div id="Navbar" className="flex flex-row h-[64px] bg-indigo-700">
+        <div id="Navbar" className="flex flex-row h-[64px] bg-primary">
           <div className="m-auto">
             <ConnectWallet />
           </div>

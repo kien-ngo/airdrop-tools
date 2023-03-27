@@ -2,9 +2,9 @@ import { useAddress, useBalance, useNetwork } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { isAddress } from "ethers/lib/utils";
 import { useEffect, useRef, useState } from "react";
-import ArrowDownIcon from "../src/components/ArrowDownIcon";
+import ArrowDownIcon from "../src/components/icons/ArrowDownIcon";
 import Erc721Recepients from "../src/components/Erc721Recepients";
-import { TDisplayNftItem } from "../src/types/blockchain";
+import { TDisplayNftItem } from "../src/types/misc";
 import { TListErc721, TNft } from "../src/types/glacier-api";
 import { truncateEthAddress } from "../src/utils/string";
 

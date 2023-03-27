@@ -7,14 +7,14 @@ html {
 }
 body {
   color: white;
-  overflow: scroll;
+  overflow-y: scroll;
   /* background: black; */
 }
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: Inter, sans-serif, monospace, -apple-system, BlinkMacSystemFont,
+  font-family: monospace, Inter, sans-serif, -apple-system, BlinkMacSystemFont,
     Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
     Helvetica Neue;
 }

@@ -1,26 +1,38 @@
 import type { NextPage } from "next";
-import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import TokensTab from "../src/components/tabs/TokensTab";
+const NftsTab = dynamic(() => import("../src/components/tabs/NftsTab"));
+const SettingsTab = dynamic(() => import("../src/components/tabs/SettingsTab"));
+
+const tabs = ["Tokens", "NFTs", "Settings"] as const;
 
 const Home: NextPage = () => {
+  const [activeTab, setActiveTab] = useState<typeof tabs[number]>("Tokens");
+
   return (
-    <div className="flex flex-col">
-      <div className="mx-auto text-2xl mt-5">Welcome,</div>
-      <div className="mx-auto">
-        This tool helps you to transfer multiple tokens in your wallet to a list
-        of receipients
+    <>
+      <div className="flex flex-col py-2">
+        <div className="tabs tabs-boxed mx-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`tab ${tab === activeTab ? "tab-active" : ""}`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="mx-auto mt-10 flex flex-col">
-        <Link className="btn" href="/send-native">
-          Send native token
-        </Link>
-        <Link className="btn mt-5" href="/send-tokens">
-          Send ERC20 tokens
-        </Link>
-        <Link className="btn mt-5" href="/send-nfts">
-          Send NFTs
-        </Link>
-      </div>
-    </div>
+      {activeTab === "Tokens" ? (
+        <TokensTab />
+      ) : activeTab === "NFTs" ? (
+        <NftsTab />
+      ) : (
+        <SettingsTab />
+      )}
+    </>
   );
 };
 
