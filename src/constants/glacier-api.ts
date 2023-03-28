@@ -1,3 +1,4 @@
+export const BASE_URL = "https://glacier-api.avax.network/v1";
 export const GLACIER_SUPPORTED_CHAINS = [
   {
     chainId: "43114",

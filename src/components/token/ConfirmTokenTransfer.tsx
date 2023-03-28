@@ -4,24 +4,19 @@ import { convertToWei } from "../../utils/number";
 import SendErc20Token from "./SendErc20Token";
 import SendNativeToken from "./SendNativeToken";
 import { TRecipient } from "./AddTokenRecipients";
+import { useAddress } from "@thirdweb-dev/react";
 
 type Props = {
-  callerAddress: TEvmAddress;
   recipients: TRecipient[];
   totalAmountToSend: number;
   balanceData: TErc20BalanceData;
   tokenAddress: TEvmAddress;
+  cancelFn: Function;
 };
 
 export default function ConfirmTokenTransfer(props: Props) {
-  const {
-    recipients,
-    totalAmountToSend,
-    balanceData,
-    callerAddress,
-    tokenAddress,
-  } = props;
-
+  const { recipients, totalAmountToSend, balanceData, tokenAddress, cancelFn } =
+    props;
   const uniqueRicepientAddresses = [
     ...new Set(recipients.map((item) => item.to)),
   ];
@@ -56,7 +51,6 @@ export default function ConfirmTokenTransfer(props: Props) {
           <SendNativeToken
             _recipients={_recipients}
             _amounts={_amounts}
-            callerAddress={callerAddress}
             totalAmountToSend={totalAmountToSend}
             uniqueRicepientAddresses={uniqueRicepientAddresses}
           />
@@ -70,7 +64,10 @@ export default function ConfirmTokenTransfer(props: Props) {
         )}
       </div>
       <div className="mx-auto mt-4">
-        <button className="border border-red-500 px-4 rounded-md hover:text-white hover:bg-red-500 duration-200">
+        <button
+          onClick={() => cancelFn(undefined)}
+          className="border border-red-500 px-4 rounded-md hover:text-white hover:bg-red-500 duration-200"
+        >
           Cancel
         </button>
       </div>

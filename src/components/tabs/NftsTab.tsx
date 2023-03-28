@@ -1,7 +1,3 @@
-export default function NftTab({
-  callerAddress,
-}: {
-  callerAddress: string | undefined;
-}) {
+export default function NftTab() {
   return <div></div>;
 }

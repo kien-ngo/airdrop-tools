@@ -1,3 +1,4 @@
+import { useAddress } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { isAddress } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
@@ -6,9 +7,9 @@ import GreenCheckMark from "../icons/GreenCheckmark";
 import ConfirmTokenTransfer from "./ConfirmTokenTransfer";
 
 type Props = {
-  callerAddress: TEvmAddress;
   balanceData: TErc20BalanceData;
   tokenAddress: TEvmAddress;
+  cancelFn: Function;
 };
 export type TRecipient = {
   to: string;
@@ -21,7 +22,8 @@ type TError = {
 };
 
 export default function AddTokenRecipients(props: Props) {
-  const { callerAddress, balanceData, tokenAddress } = props;
+  const { balanceData, tokenAddress, cancelFn } = props;
+  const address = useAddress();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [showNextStep, setShowNextStep] = useState<boolean>(false);
   const [recipients, setRecipients] = useState<TRecipient[]>([
@@ -61,7 +63,7 @@ export default function AddTokenRecipients(props: Props) {
         message: "Address is empty",
       };
     }
-    if (value === callerAddress) {
+    if (value === address) {
       return {
         valid: false,
         message: "This is your own address",
@@ -137,7 +139,8 @@ export default function AddTokenRecipients(props: Props) {
               const amountErrorMsg = validateTokenAmount(item.amount).message;
               return (
                 <div className="flex flex-row justify-center mt-2" key={index}>
-                  <div className="flex flex-col min-w-[300px]">
+                  <div className="flex flex-col lg:min-w-[300px] md:min-w-[300px]">
+                    {index === 0 && <div>Address</div>}
                     <input
                       disabled={showNextStep}
                       defaultValue={item.to}
@@ -157,6 +160,7 @@ export default function AddTokenRecipients(props: Props) {
                     )}
                   </div>
                   <div className="flex flex-col">
+                    {index === 0 && <div>Amount</div>}
                     <input
                       disabled={showNextStep}
                       defaultValue={item.amount}
@@ -171,31 +175,45 @@ export default function AddTokenRecipients(props: Props) {
                         updateTokenAmount(index, parseFloat(e.target.value))
                       }
                     />
-                    <button
-                      disabled={showNextStep}
-                      onClick={() => deleteRecipient(index)}
-                      className="enabled:hover:underline enabled:hover:text-red-500 disabled:cursor-not-allowed"
-                    >
-                      Delete
-                    </button>
+                    {!showNextStep && (
+                      <button
+                        disabled={showNextStep}
+                        onClick={() => deleteRecipient(index)}
+                        className="enabled:hover:underline enabled:hover:text-red-500 disabled:cursor-not-allowed"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
               );
             })}
-            <button
-              disabled={showNextStep}
-              onClick={addMoreRecipients}
-              className="mt-4 rounded-lg border border-white w-fit px-5 mx-auto enabled:hover:text-black enabled:hover:bg-white duration-200 disabled:cursor-not-allowed disabled:text-gray-400"
-            >
-              Add more +
-            </button>
-            <button
-              disabled={!canSubmit || showNextStep}
-              onClick={submitRecipients}
-              className="mt-4 rounded-lg border border-success w-fit px-5 mx-auto enabled:hover:text-black enabled:hover:bg-success duration-200 disabled:cursor-not-allowed disabled:text-gray-400 disabled:border-gray-400"
-            >
-              Next
-            </button>
+            {!showNextStep && (
+              <>
+                <button
+                  disabled={showNextStep}
+                  onClick={addMoreRecipients}
+                  className="mt-4 rounded-lg border border-white w-fit px-5 mx-auto enabled:hover:text-black enabled:hover:bg-white duration-200 disabled:cursor-not-allowed disabled:text-gray-400"
+                >
+                  Add more +
+                </button>
+                <div className="mx-auto mt-6">
+                  <button
+                    disabled={!canSubmit}
+                    onClick={submitRecipients}
+                    className="rounded-lg border border-success w-fit px-5 enabled:hover:text-black enabled:hover:bg-success duration-200 disabled:cursor-not-allowed disabled:text-gray-400 disabled:border-gray-400"
+                  >
+                    Next
+                  </button>
+                  <button
+                    onClick={() => cancelFn(undefined)}
+                    className="ml-2 border border-red-500 px-4 rounded-md hover:text-white hover:bg-red-500 duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
         {showNextStep && (
@@ -208,11 +226,11 @@ export default function AddTokenRecipients(props: Props) {
       {/* Next step */}
       {showNextStep && (
         <ConfirmTokenTransfer
-          callerAddress={callerAddress as TEvmAddress}
           tokenAddress={tokenAddress}
           totalAmountToSend={totalAmountToSend}
           balanceData={balanceData}
           recipients={recipients}
+          cancelFn={setShowNextStep}
         />
       )}
     </>

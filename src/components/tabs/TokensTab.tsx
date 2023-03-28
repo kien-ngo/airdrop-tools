@@ -3,33 +3,39 @@ import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { isAddress } from "ethers/lib/utils";
 import dynamic from "next/dynamic";
 import { useRef, useState } from "react";
+import useFetchErc20Tokens from "../../hooks/useFetchErc20Tokens";
 import { TEvmAddress } from "../../types";
-import { TErc20, TListErc20Balances } from "../../types/glacier-api";
+import { TErc20 } from "../../types/glacier-api";
 import { copyTextToClipboard } from "../../utils/misc";
 import { convertBigNumToFloat } from "../../utils/number";
 import { truncateEthAddress } from "../../utils/string";
 import ArrowDownIcon from "../icons/ArrowDownIcon";
 import GreenCheckMark from "../icons/GreenCheckmark";
+import Erc20RecipientsWrapper from "../token/Erc20RecipientsWrapper";
 
 const AddTokenRecipients = dynamic(
   () => import("../token/AddTokenRecipients"),
   { ssr: false }
 );
 
-type TTokenTabs = { callerAddress: string | undefined };
-
-export default function TokenTab({ callerAddress }: TTokenTabs) {
+export default function TokenTab() {
   const { data: balanceData, isLoading } = useBalance(NATIVE_TOKEN_ADDRESS);
   const [{ data: chainData, error, loading: loadingNetwork }] = useNetwork();
   const [showLowBalances, setShowLowBalances] = useState<boolean>(false);
   const [lowBalanceThreshhold, setLowBalanceThreshold] = useState<number>(0.5);
   const [selectedTokenAddress, setSelectedTokenAddress] =
     useState<TEvmAddress>();
+  const {
+    erc20Tokens,
+    errorMsg,
+    isLoading: loadingErc20Tokens,
+    fetchErc20Tokens,
+  } = useFetchErc20Tokens();
   const inputRef = useRef<HTMLInputElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
   const displayItems: TErc20[] = showLowBalances
-    ? testTokenBalances.erc20TokenBalances
-    : testTokenBalances.erc20TokenBalances.filter(
+    ? erc20Tokens
+    : erc20Tokens.filter(
         (item) =>
           convertBigNumToFloat(item.balance, item.decimals) >
           lowBalanceThreshhold
@@ -66,6 +72,14 @@ export default function TokenTab({ callerAddress }: TTokenTabs) {
         <div className="flex flex-col px-2">
           <div className="flex flex-col border border-gray-400 p-2 mt-2">
             <div className="flex flex-row">
+              <div>
+                <button
+                  className="border border-white px-2"
+                  onClick={() => fetchErc20Tokens}
+                >
+                  Refresh
+                </button>
+              </div>
               <div className="ml-auto">
                 <label htmlFor="toggleShowBalanceInput">
                   Show low balances:
@@ -85,8 +99,8 @@ export default function TokenTab({ callerAddress }: TTokenTabs) {
                 key={item.address}
               >
                 <div>
-                  <span className="text-success font-bold">{item.symbol}</span>-{" "}
-                  {item.name}
+                  <span className="text-success font-bold">{item.symbol}</span>{" "}
+                  - {item.name}
                 </div>
                 <div>
                   Balance: {convertBigNumToFloat(item.balance, item.decimals)}
@@ -118,7 +132,7 @@ export default function TokenTab({ callerAddress }: TTokenTabs) {
         <summary className="bg-primary w-[95vw] lg:w-[800px] md:w-[700px] py-2 pl-2 rounded-lg cursor-pointer">
           Transfer tokens
         </summary>
-        <div className="flex flex-col px-2">
+        <div className="flex flex-col px-1 w-[95vw] lg:w-[800px] md:w-[700px]">
           <div className="flex flex-col border border-gray-400 p-2 mt-2">
             <div className="font-bold text-lg">
               Step 1: Select the token to send
@@ -146,7 +160,7 @@ export default function TokenTab({ callerAddress }: TTokenTabs) {
               >
                 ${chainData.chain?.nativeCurrency?.symbol} (Native token)
               </option>
-              {testTokenBalances.erc20TokenBalances.map((item) => (
+              {erc20Tokens.map((item) => (
                 <option
                   value={item.address}
                   key={item.address}
@@ -167,20 +181,24 @@ export default function TokenTab({ callerAddress }: TTokenTabs) {
                 type="text"
                 placeholder="Contract to send"
               />
-              <button
-                onClick={clearInput}
-                className="mx-auto mt-2 underline disabled:cursor-not-allowed"
-                disabled={selectedTokenAddress !== undefined}
-              >
-                Clear
-              </button>
-              <button
-                onClick={importContract}
-                disabled={selectedTokenAddress !== undefined}
-                className="mt-6 rounded-lg border border-white w-fit px-5 mx-auto enabled:hover:text-black enabled:hover:bg-white duration-200 disabled:cursor-not-allowed disabled:text-gray-400 disabled:border-gray-400"
-              >
-                Next
-              </button>
+              {!selectedTokenAddress && (
+                <>
+                  <button
+                    onClick={clearInput}
+                    className="mx-auto mt-2 underline disabled:cursor-not-allowed"
+                    disabled={selectedTokenAddress !== undefined}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    onClick={importContract}
+                    disabled={selectedTokenAddress !== undefined}
+                    className="mt-6 rounded-lg border border-green-500 w-fit px-5 mx-auto enabled:hover:text-black enabled:hover:bg-green-500 duration-200 disabled:cursor-not-allowed disabled:text-gray-400 disabled:border-gray-400"
+                  >
+                    Next
+                  </button>
+                </>
+              )}
             </div>
             {selectedTokenAddress && (
               <div className="ml-auto">
@@ -189,142 +207,28 @@ export default function TokenTab({ callerAddress }: TTokenTabs) {
             )}
           </div>
           {/* Step 2 */}
-          {selectedTokenAddress && balanceData && (
-            <AddTokenRecipients
-              callerAddress={callerAddress as TEvmAddress}
-              tokenAddress={selectedTokenAddress}
-              balanceData={balanceData}
-            />
+          {selectedTokenAddress && (
+            <>
+              {selectedTokenAddress === NATIVE_TOKEN_ADDRESS ? (
+                <>
+                  {balanceData && (
+                    <AddTokenRecipients
+                      cancelFn={setSelectedTokenAddress}
+                      tokenAddress={selectedTokenAddress}
+                      balanceData={balanceData}
+                    />
+                  )}
+                </>
+              ) : (
+                <Erc20RecipientsWrapper
+                  tokenAddress={selectedTokenAddress}
+                  cancelFn={setSelectedTokenAddress}
+                />
+              )}
+            </>
           )}
         </div>
       </details>
     </div>
   );
 }
-
-const testTokenBalances: TListErc20Balances = {
-  erc20TokenBalances: [
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x01234181085565ed162a948b6a5e88758CD7c7b8",
-      name: "GMX LP",
-      symbol: "GLP",
-      decimals: 18,
-      balance: "0",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x0C4684086914D5B1525bf16c62a0FF8010AB991A",
-      name: "Compounding YAK",
-      symbol: "YRT",
-      decimals: 18,
-      balance: "0",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x1205f31718499dBf1fCa446663B532Ef87481fe1",
-      name: "USD Coin-LP",
-      symbol: "S*USDC",
-      decimals: 6,
-      balance: "0",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x1B156C5c75E9dF4CAAb2a5cc5999aC58ff4F9090",
-      name: "Moo Aave AVAX",
-      symbol: "mooAaveAVAX",
-      decimals: 18,
-      balance: "0",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x22EDe03f1115666CF05a4bAfafaEe8F43D42cD56",
-      name: "Yield Yak: JLP sAVAX-AVAX",
-      symbol: "YRT",
-      decimals: 18,
-      balance: "0",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x22d4002028f537599bE9f666d1c4Fa138522f9c8",
-      name: "Platypus",
-      symbol: "PTP",
-      decimals: 18,
-      price: {
-        value: 0.054846,
-        currencyCode: "usd",
-      },
-      balance: "0",
-      balanceValue: {
-        currencyCode: "usd",
-        value: 0,
-      },
-      logoUri:
-        "https://glacier-api.avax.network/proxy/chain-assets/3e1b653/chains/43114/contracts/0x22d4002028f537599bE9f666d1c4Fa138522f9c8/logo.png",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-      name: "StargateToken",
-      symbol: "STG",
-      decimals: 18,
-      price: {
-        value: 0.653146,
-        currencyCode: "usd",
-      },
-      balance: "0",
-      balanceValue: {
-        currencyCode: "usd",
-        value: 0,
-      },
-      logoUri:
-        "https://glacier-api.avax.network/proxy/chain-assets/3e1b653/chains/43114/contracts/0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590/logo.png",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE",
-      name: "Staked AVAX",
-      symbol: "sAVAX",
-      decimals: 18,
-      price: {
-        value: 18.17,
-        currencyCode: "usd",
-      },
-      balance: "0",
-      balanceValue: {
-        currencyCode: "usd",
-        value: 0,
-      },
-      logoUri:
-        "https://glacier-api.avax.network/proxy/chain-assets/3e1b653/chains/43114/contracts/0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE/logo.png",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x2bD10f8E93B3669b6d42E74eEedC65dd1B0a1342",
-      name: "Staked GMX",
-      symbol: "sGMX",
-      decimals: 18,
-      balance: "0",
-    },
-    {
-      ercType: "ERC-20",
-      chainId: "43114",
-      address: "0x2be494c06316c0D7371250419a9c659A0752ecB3",
-      name: "24DROP.NET",
-      symbol: "24DROP.NET",
-      decimals: 8,
-      balance: "200000000000",
-    },
-  ],
-  nextPageToken:
-    "eyJwayI6eyJTIjoiRVJDMjAjMHg4OWY4NEQ0ZTRlY2FCYTQyMjMzRUVmYzQ2ZUU0OWEwM0RiOTQzYkFEIn0sInNrIjp7IlMiOiIweDJiZTQ5NGMwNjMxNmMwRDczNzEyNTA0MTlhOWM2NTlBMDc1MmVjQjMifX0",
-};

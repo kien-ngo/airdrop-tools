@@ -33,9 +33,9 @@ const Home: NextPage = () => {
       ) : (
         <>
           {activeTab === "Tokens" ? (
-            <TokensTab callerAddress={address} />
+            <TokensTab />
           ) : activeTab === "NFTs" ? (
-            <NftsTab callerAddress={address} />
+            <NftsTab />
           ) : (
             <SettingsTab />
           )}
