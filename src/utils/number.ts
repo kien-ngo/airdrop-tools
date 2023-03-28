@@ -14,8 +14,8 @@ export const convertBigNumToFloat = (
   return res;
 };
 
-// export const convertHexToFloat = (hex: string, decimals: number): number => {
-//   const wei = BigInt(hex);
-//   const ether = Number(wei / BigInt(10 ** decimals));
-//   return ether;
-// };
+export const convertHexToFloat = (hex: string, decimals: number): number => {
+  const wei = BigInt(hex);
+  const ether = Number(wei / BigInt(10 ** decimals));
+  return ether;
+};

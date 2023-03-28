@@ -3,14 +3,15 @@ import { isAddress } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
 import { TErc20BalanceData, TEvmAddress } from "../../types";
 import GreenCheckMark from "../icons/GreenCheckmark";
-import ConfirmErc20Transfer from "./ConfirmNativeTokenTransfer";
+import ConfirmTokenTransfer from "./ConfirmTokenTransfer";
 
-type TAddErc20RecepientsProps = {
+type Props = {
   callerAddress: TEvmAddress;
   balanceData: TErc20BalanceData;
+  tokenAddress: TEvmAddress;
 };
-export type TErc20Recepient = {
-  address: string;
+export type TRecipient = {
+  to: string;
   amount: number;
 };
 
@@ -19,38 +20,39 @@ type TError = {
   message?: string;
 };
 
-export default function AddErc20Recepients(props: TAddErc20RecepientsProps) {
-  const { callerAddress, balanceData } = props;
+export default function AddTokenRecipients(props: Props) {
+  const { callerAddress, balanceData, tokenAddress } = props;
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [showNextStep, setShowNextStep] = useState<boolean>(false);
-  const [recepients, setRecepients] = useState<TErc20Recepient[]>([
-    { address: "0x89f84d4e4ecaba42233eefc46ee49a03db943bad", amount: 0 },
-    { address: "0xd587924ce50c703182409d7d45eb79a9fbe6b49d", amount: 1 },
+  const [recipients, setRecipients] = useState<TRecipient[]>([
+    { to: "0xd587924ce50c703182409d7d45eb79a9fbe6b49d", amount: 1 },
   ]);
-  const totalAmountToSend: number = recepients
-    .map((item) => (item.amount < 0 ? 0 : item.amount))
-    .reduce((accumulator, currentValue) => {
-      return accumulator + currentValue;
-    });
+  const totalAmountToSend: number = recipients.length
+    ? recipients
+        .map((item) => (item.amount < 0 ? 0 : item.amount))
+        .reduce((accumulator, currentValue) => {
+          return accumulator + currentValue;
+        })
+    : 0;
   const availableBalance = balanceData?.displayValue
     ? parseFloat(balanceData.displayValue) - totalAmountToSend
     : "_N/A_";
   const updateTokenAmount = (index: number, amount: number) => {
-    recepients[index].amount = amount ? amount : 0;
-    setRecepients([...recepients]);
+    recipients[index].amount = amount ? amount : 0;
+    setRecipients([...recipients]);
   };
-  const updateRecepientAddress = (index: number, address: string) => {
-    recepients[index].address = address;
-    setRecepients([...recepients]);
+  const updateRecipientAddress = (index: number, address: string) => {
+    recipients[index].to = address;
+    setRecipients([...recipients]);
   };
   const amountToSendToLarge = totalAmountToSend >= availableBalance;
-  const addMoreRecepients = () => {
-    recepients.push({ address: "", amount: 0 });
-    setRecepients([...recepients]);
+  const addMoreRecipients = () => {
+    recipients.push({ to: "", amount: 0 });
+    setRecipients([...recipients]);
   };
-  const deleteRecepient = (index: number) => {
-    recepients.splice(index, 1);
-    setRecepients([...recepients]);
+  const deleteRecipient = (index: number) => {
+    recipients.splice(index, 1);
+    setRecipients([...recipients]);
   };
   const validateInputAddress = (value: string): TError => {
     if (!value) {
@@ -65,10 +67,10 @@ export default function AddErc20Recepients(props: TAddErc20RecepientsProps) {
         message: "This is your own address",
       };
     }
-    if (value === NATIVE_TOKEN_ADDRESS) {
+    if ([tokenAddress, NATIVE_TOKEN_ADDRESS].includes(value)) {
       return {
         valid: false,
-        message: "This is the token address",
+        message: "This is a contract address",
       };
     }
     if (!isAddress(value))
@@ -86,17 +88,17 @@ export default function AddErc20Recepients(props: TAddErc20RecepientsProps) {
       return { valid: false, message: "Amount exceeds available balance" };
     return { valid: true };
   };
-  const submitRecepients = () => {
+  const submitRecipients = () => {
     setShowNextStep(true);
   };
   useEffect(() => {
-    if (recepients.length === 0) {
+    if (recipients.length === 0) {
       setCanSubmit(false);
     }
     if (
-      recepients.some(
+      recipients.some(
         (item) =>
-          !validateInputAddress(item.address).valid ||
+          !validateInputAddress(item.to).valid ||
           !validateTokenAmount(item.amount).valid
       )
     ) {
@@ -104,12 +106,12 @@ export default function AddErc20Recepients(props: TAddErc20RecepientsProps) {
       return;
     }
     setCanSubmit(true);
-  }, [recepients]);
+  }, [recipients]);
   if (!balanceData) return <div>Oops, something went wrong..</div>;
   return (
     <>
       <div className="flex flex-col border border-gray-400 p-2 mt-2">
-        <div className="font-bold text-lg">Step 2: Add recepients</div>
+        <div className="font-bold text-lg">Step 2: Add recipients</div>
         <div className="flex flex-col">
           <div className="mt-2">
             You are sending ${balanceData.symbol} - {balanceData.name}
@@ -130,24 +132,22 @@ export default function AddErc20Recepients(props: TAddErc20RecepientsProps) {
             </div>
           )}
           <div className="flex flex-col mt-2">
-            {recepients.map((item, index) => {
-              const addressErrorMsg = validateInputAddress(
-                item.address
-              ).message;
+            {recipients.map((item, index) => {
+              const addressErrorMsg = validateInputAddress(item.to).message;
               const amountErrorMsg = validateTokenAmount(item.amount).message;
               return (
                 <div className="flex flex-row justify-center mt-2" key={index}>
                   <div className="flex flex-col min-w-[300px]">
                     <input
                       disabled={showNextStep}
-                      defaultValue={item.address}
+                      defaultValue={item.to}
                       type="text"
                       placeholder="Wallet address"
                       className={`disabled:cursor-not-allowed w-full pl-1 py-1 max-w-[350px] text-xs h-[32px] ${
                         addressErrorMsg ? "border border-red-500" : ""
                       }`}
                       onChange={(e) =>
-                        updateRecepientAddress(index, e.target.value)
+                        updateRecipientAddress(index, e.target.value)
                       }
                     />
                     {(addressErrorMsg || amountErrorMsg) && (
@@ -173,7 +173,7 @@ export default function AddErc20Recepients(props: TAddErc20RecepientsProps) {
                     />
                     <button
                       disabled={showNextStep}
-                      onClick={() => deleteRecepient(index)}
+                      onClick={() => deleteRecipient(index)}
                       className="enabled:hover:underline enabled:hover:text-red-500 disabled:cursor-not-allowed"
                     >
                       Delete
@@ -184,17 +184,14 @@ export default function AddErc20Recepients(props: TAddErc20RecepientsProps) {
             })}
             <button
               disabled={showNextStep}
-              onClick={addMoreRecepients}
+              onClick={addMoreRecipients}
               className="mt-4 rounded-lg border border-white w-fit px-5 mx-auto enabled:hover:text-black enabled:hover:bg-white duration-200 disabled:cursor-not-allowed disabled:text-gray-400"
             >
               Add more +
             </button>
-            {/* <div className="mx-auto mt-3">
-          <ArrowDownIcon />
-        </div> */}
             <button
               disabled={!canSubmit || showNextStep}
-              onClick={submitRecepients}
+              onClick={submitRecipients}
               className="mt-4 rounded-lg border border-success w-fit px-5 mx-auto enabled:hover:text-black enabled:hover:bg-success duration-200 disabled:cursor-not-allowed disabled:text-gray-400 disabled:border-gray-400"
             >
               Next
@@ -210,11 +207,12 @@ export default function AddErc20Recepients(props: TAddErc20RecepientsProps) {
 
       {/* Next step */}
       {showNextStep && (
-        <ConfirmErc20Transfer
-          callerAddress={callerAddress}
-          balanceData={balanceData}
-          recepients={recepients}
+        <ConfirmTokenTransfer
+          callerAddress={callerAddress as TEvmAddress}
+          tokenAddress={tokenAddress}
           totalAmountToSend={totalAmountToSend}
+          balanceData={balanceData}
+          recipients={recipients}
         />
       )}
     </>

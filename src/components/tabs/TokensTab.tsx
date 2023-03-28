@@ -1,22 +1,24 @@
-import { useAddress, useBalance, useNetwork } from "@thirdweb-dev/react";
-import {
-  NATIVE_TOKENS,
-  NATIVE_TOKEN_ADDRESS,
-  SUPPORTED_CHAIN_ID,
-} from "@thirdweb-dev/sdk";
+import { useBalance, useNetwork } from "@thirdweb-dev/react";
+import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { isAddress } from "ethers/lib/utils";
+import dynamic from "next/dynamic";
 import { useRef, useState } from "react";
 import { TEvmAddress } from "../../types";
 import { TErc20, TListErc20Balances } from "../../types/glacier-api";
 import { copyTextToClipboard } from "../../utils/misc";
 import { convertBigNumToFloat } from "../../utils/number";
 import { truncateEthAddress } from "../../utils/string";
-import AddErc20Recepients from "../token/AddNativeTokenRecepients";
 import ArrowDownIcon from "../icons/ArrowDownIcon";
 import GreenCheckMark from "../icons/GreenCheckmark";
-type TTokenTabs = {};
-export default function TokenTab(props: TTokenTabs) {
-  const address = useAddress() as TEvmAddress;
+
+const AddTokenRecipients = dynamic(
+  () => import("../token/AddTokenRecipients"),
+  { ssr: false }
+);
+
+type TTokenTabs = { callerAddress: string | undefined };
+
+export default function TokenTab({ callerAddress }: TTokenTabs) {
   const { data: balanceData, isLoading } = useBalance(NATIVE_TOKEN_ADDRESS);
   const [{ data: chainData, error, loading: loadingNetwork }] = useNetwork();
   const [showLowBalances, setShowLowBalances] = useState<boolean>(false);
@@ -138,8 +140,11 @@ export default function TokenTab(props: TTokenTabs) {
               }}
             >
               <option value="Select a token">Select a token</option>
-              <option value={NATIVE_TOKEN_ADDRESS}>
-                {chainData.chain?.nativeCurrency?.symbol} (Native token)
+              <option
+                value={NATIVE_TOKEN_ADDRESS}
+                className="bg-warning text-black"
+              >
+                ${chainData.chain?.nativeCurrency?.symbol} (Native token)
               </option>
               {testTokenBalances.erc20TokenBalances.map((item) => (
                 <option
@@ -147,7 +152,7 @@ export default function TokenTab(props: TTokenTabs) {
                   key={item.address}
                   className="py-1"
                 >
-                  {item.name} - {item.symbol}
+                  ${item.symbol} -- {item.name}
                 </option>
               ))}
             </select>
@@ -184,14 +189,13 @@ export default function TokenTab(props: TTokenTabs) {
             )}
           </div>
           {/* Step 2 */}
-          {selectedTokenAddress &&
-            balanceData &&
-            selectedTokenAddress === NATIVE_TOKEN_ADDRESS && (
-              <AddErc20Recepients
-                callerAddress={address}
-                balanceData={balanceData}
-              />
-            )}
+          {selectedTokenAddress && balanceData && (
+            <AddTokenRecipients
+              callerAddress={callerAddress as TEvmAddress}
+              tokenAddress={selectedTokenAddress}
+              balanceData={balanceData}
+            />
+          )}
         </div>
       </details>
     </div>
