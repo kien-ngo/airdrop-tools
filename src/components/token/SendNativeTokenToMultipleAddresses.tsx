@@ -1,6 +1,6 @@
 import { Web3Button } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
-import { parseEther } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import { TEvmAddress } from "../../types";
 import { convertToWei } from "../../utils/number";
 import { TErc20Recepient } from "./AddNativeTokenRecepients";
@@ -29,6 +29,7 @@ export default function SendNativeTokenToMultipleAddresses(
   );
   const _recepients = arr.map((item) => item.address);
   const _amounts = arr.map((item) => convertToWei(item.amount));
+
   return (
     <Web3Button
       contractAddress="0xa56266B854287e15612b2A7d6077f4CECdF508D8"
@@ -37,13 +38,16 @@ export default function SendNativeTokenToMultipleAddresses(
           "airdrop",
           NATIVE_TOKEN_ADDRESS,
           props.callerAddress,
-          _recepients,
-          _amounts
+          ["0xd587924ce50c703182409d7d45eb79a9fbe6b49d"],
+          ["1000000000000000000"]
         );
       }}
-      overrides={{ value: parseEther("2000000000000000000") }}
+      overrides={{
+        value: parseEther("1"),
+        gasLimit: 1000000
+      }}
     >
-      airdrop
+      Batch send
     </Web3Button>
   );
 }

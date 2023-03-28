@@ -1,8 +1,6 @@
-import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { TErc20BalanceData, TEvmAddress } from "../../types";
 import { TErc20Recepient } from "./AddNativeTokenRecepients";
 import SendNativeTokenToMultipleAddresses from "./SendNativeTokenToMultipleAddresses";
-import SendToSingleAddress from "./SendNativeToSingleAddress";
 
 type TConfirmErc20TransferProps = {
   callerAddress: TEvmAddress;
@@ -27,23 +25,28 @@ export default function ConfirmErc20Transfer(
       <div className="font-bold text-lg">Step 3: Send transaction</div>
       <div>
         You are sending {totalAmountToSend} ${balanceData.symbol} to{" "}
-        {uniqueRecepientAddresses.length} recepients
+        {uniqueRecepientAddresses.length === 1
+          ? "only 1"
+          : uniqueRecepientAddresses.length}{" "}
+        recepients.
+        <br />
+        {uniqueRecepientAddresses.length === 1 && (
+          <span className="text-sm text-warning">
+            It might be cheaper to just do it from your wallet instead of
+            calling the transfer contract
+          </span>
+        )}
       </div>
-      {uniqueRecepientAddresses.length === 1 ? (
-        <div className="mx-auto mt-4">
-          <SendToSingleAddress
-            recepientAddress={recepients[0].address as TEvmAddress}
-            amount={totalAmountToSend}
-          />
-        </div>
-      ) : (
-        <div className="mx-auto mt-4">
-          <SendNativeTokenToMultipleAddresses
-            callerAddress={callerAddress}
-            recepients={recepients}
-          />
-        </div>
-      )}
+
+      <div className="mx-auto mt-4">
+        <SendNativeTokenToMultipleAddresses
+          callerAddress={callerAddress}
+          recepients={recepients}
+        />
+      </div>
+      <div className="mx-auto mt-4">
+        <button className="border border-red-500 px-4 rounded-md hover:text-white hover:bg-red-500 duration-200">Cancel</button>
+      </div>
     </div>
   );
 }
