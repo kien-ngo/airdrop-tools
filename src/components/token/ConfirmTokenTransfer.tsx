@@ -1,10 +1,15 @@
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { TErc20BalanceData, TEvmAddress } from "../../types";
 import { convertToWei } from "../../utils/number";
-import SendErc20Token from "./SendErc20Token";
-import SendNativeToken from "./SendNativeToken";
 import { TRecipient } from "./AddTokenRecipients";
-import { useAddress } from "@thirdweb-dev/react";
+import dynamic from "next/dynamic";
+
+const SendErc20Token = dynamic(() => import("./SendErc20Token"), {
+  ssr: false,
+});
+const SendNativeToken = dynamic(() => import("./SendNativeToken"), {
+  ssr: false,
+});
 
 type Props = {
   recipients: TRecipient[];
@@ -42,7 +47,7 @@ export default function ConfirmTokenTransfer(props: Props) {
       <div className="font-bold text-lg">Step 3: Send transaction</div>
       <div>
         You are sending {totalAmountToSend} ${balanceData.symbol} to{" "}
-        {uniqueRicepientAddresses.length} recipients.
+        {uniqueRicepientAddresses.length} recipient(s).
         <br />
       </div>
 

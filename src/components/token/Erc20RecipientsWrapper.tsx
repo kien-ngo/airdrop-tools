@@ -1,7 +1,6 @@
 import { useAddress, useContract, useTokenBalance } from "@thirdweb-dev/react";
 import { TEvmAddress } from "../../types";
 import AddTokenRecipients from "./AddTokenRecipients";
-import { ERC20_TEST } from "./SendErc20Token";
 
 export default function Erc20RecipientsWrapper({
   tokenAddress,
@@ -11,7 +10,7 @@ export default function Erc20RecipientsWrapper({
   cancelFn: Function;
 }) {
   const address = useAddress();
-  const { contract } = useContract(ERC20_TEST, "token");
+  const { contract } = useContract(tokenAddress, "token");
   const {
     data: balanceData,
     isLoading,

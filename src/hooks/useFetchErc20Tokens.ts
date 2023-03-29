@@ -21,6 +21,7 @@ export default function useFetchErc20Tokens() {
       ).then((r) => r.json());
       setErc20Tokens(res.erc20TokenBalances);
     } catch (err) {
+      alert(err);
       setErrorMsg(err as string);
     }
     setIsLoading(false);

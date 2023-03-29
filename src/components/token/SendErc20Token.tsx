@@ -14,8 +14,6 @@ type Props = {
   uniqueRicepientAddresses: string[];
 };
 
-export const ERC20_TEST = "0xAc972F39b8b4735C283470c6e46631BdB4419EDF";
-
 export default function SendErc20Token(props: Props) {
   const {
     recipients,
@@ -24,7 +22,7 @@ export default function SendErc20Token(props: Props) {
     totalAmountToSend,
   } = props;
   const { contract: tokenContract, isLoading: loadingTokenContract } =
-    useContract(ERC20_TEST);
+    useContract(tokenAddress);
   const { mutateAsync: transferBatchToken } =
     useTransferBatchToken(tokenContract);
   const { mutate: transferTokens } = useTransferToken(tokenContract);
@@ -36,7 +34,7 @@ export default function SendErc20Token(props: Props) {
   if (uniqueRicepientAddresses.length === 1) {
     return (
       <Web3Button
-        contractAddress={ERC20_TEST}
+        contractAddress={tokenAddress}
         action={() =>
           transferTokens({
             to: uniqueRicepientAddresses[0], // Address to transfer to
@@ -44,13 +42,13 @@ export default function SendErc20Token(props: Props) {
           })
         }
         onSubmit={() => {
-          // console.log({ result });
+          alert("Tx submitted!");
         }}
         onSuccess={(result) => {
-          console.log({ result });
+          alert("Tx sent!");
         }}
         onError={(result) => {
-          console.log({ result });
+          alert("Tx failed!");
         }}
       >
         Send now
@@ -59,13 +57,19 @@ export default function SendErc20Token(props: Props) {
   }
   return (
     <Web3Button
-      contractAddress={ERC20_TEST}
+      contractAddress={tokenAddress}
       action={() => {
         transferBatchToken(recipients);
       }}
-      onSubmit={() => console.log("Transaction submitted")}
-      onSuccess={(result) => alert("Success!")}
-      onError={() => {}}
+      onSubmit={() => {
+        alert("Tx submitted!");
+      }}
+      onSuccess={(result) => {
+        alert("Tx sent!");
+      }}
+      onError={(result) => {
+        alert("Tx failed!");
+      }}
     >
       Batch send
     </Web3Button>

@@ -1,10 +1,14 @@
 import { useAddress } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { isAddress } from "ethers/lib/utils";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { TErc20BalanceData, TEvmAddress } from "../../types";
 import GreenCheckMark from "../icons/GreenCheckmark";
-import ConfirmTokenTransfer from "./ConfirmTokenTransfer";
+
+const ConfirmTokenTransfer = dynamic(() => import("./ConfirmTokenTransfer"), {
+  ssr: false,
+});
 
 type Props = {
   balanceData: TErc20BalanceData;
@@ -139,7 +143,7 @@ export default function AddTokenRecipients(props: Props) {
               const amountErrorMsg = validateTokenAmount(item.amount).message;
               return (
                 <div className="flex flex-row justify-center mt-2" key={index}>
-                  <div className="flex flex-col lg:min-w-[300px] md:min-w-[300px]">
+                  <div className="flex flex-col lg:min-w-[300px] md:min-w-[300px] flex-grow-[1] lg:flex-grow-0 md:flex-grow-0">
                     {index === 0 && <div>Address</div>}
                     <input
                       disabled={showNextStep}
@@ -168,7 +172,7 @@ export default function AddTokenRecipients(props: Props) {
                       min={0}
                       max={availableBalance}
                       placeholder="Amount"
-                      className={`disabled:cursor-not-allowed max-w-[100px] ml-1 pl-1 py-1 text-center ${
+                      className={`disabled:cursor-not-allowed max-w-[100px] ml-1 pl-1 py-1 text-center h-[32px] ${
                         amountErrorMsg ? "border border-red-500" : ""
                       }`}
                       onChange={(e) =>

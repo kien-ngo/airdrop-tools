@@ -19,6 +19,11 @@ export type TNft = {
     metadataLastUpdatedTimestamp?: number;
     name?: string;
     imageUri?: string;
+    description?: string;
+    animationUri?: string;
+    externalUrl?: string;
+    background?: string;
+    attributes?: any;
   };
 };
 export type TListErc721 = {
@@ -41,5 +46,10 @@ export type TErc20 = {
 
 export type TListErc20Balances = {
   erc20TokenBalances: TErc20[];
+  nextPageToken?: string;
+};
+
+export type TCollectibleBalances = {
+  collectibleBalances: TNft[];
   nextPageToken?: string;
 };
