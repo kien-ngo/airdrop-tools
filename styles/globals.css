@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  color-scheme: dark;
-}
 body {
   color: white;
   overflow-y: scroll;
@@ -12,6 +9,7 @@ body {
 }
 html,
 body {
+  color-scheme: dark;
   padding: 0;
   padding-bottom: 70px;
   margin: 0;

@@ -11,5 +11,10 @@ module.exports = {
   theme: {
     extend: {},
   },
+  
   plugins: [require("daisyui")],
+  daisyui: {
+    themes: ["dark"] // Only allow dark mode
+  },
+  // darkMode: 'media'
 };
