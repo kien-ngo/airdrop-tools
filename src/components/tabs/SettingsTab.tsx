@@ -1,4 +1,6 @@
 import { GLACIER_SUPPORTED_CHAINS } from "../../constants/glacier-api";
+import { copyTextToClipboard } from "../../utils/misc";
+import { truncateEthAddress } from "../../utils/string";
 import Box from "../shared/Box";
 import DetailsWrapper from "../shared/DetailsWrapper";
 
@@ -38,8 +40,9 @@ export default function SettingsTab() {
         <Box>
           <>
             <div>
-              This app is completely open-source, free and does not track or
-              collect anything from users. Check out the{" "}
+              Use this app to batch transfer tokens (airdrop) to multiple
+              recipients. It&apos;s completely open-source, free and does not
+              track or collect anything from users. Check out the{" "}
               <a
                 href="https://github.com/kienngo98/airdrop-tools"
                 target="_blank"
@@ -49,22 +52,69 @@ export default function SettingsTab() {
               </a>
             </div>
             <div className="mt-6">
-              The app uses the{" "}
-              <a href="https://glacier-api.avax.network/api#" target="_blank">
+              The app gathers blockchain data from Thirdweb SDK,{" "}
+              <a
+                href="https://glacier-api.avax.network/api#"
+                target="_blank"
+                className="underline"
+              >
                 Glacier APIs
-              </a>{" "}
-              offered by{" "}
-              <a href="https://avalabs.org" target="_blank">
-                Avalabs
               </a>{" "}
               and some other APIs from Covalent.
             </div>
             <div className="mt-6">
               The contracts used in this app are prebuilt and audited by{" "}
-              <a href="https://thirdweb.com/" target="_blank">
-                Thirdweb.
+              <a
+                href="https://thirdweb.com/"
+                target="_blank"
+                className="underline"
+              >
+                Thirdweb
               </a>
+              . You can deploy your own contracts and apply them to the `List of
+              contracts` below.
             </div>
+            <div className="mt-3">
+              Deploy:
+              <br />
+              <ul className="list-disc ml-5 underline">
+                <li>
+                  <a
+                    href="https://thirdweb.com/thirdweb.eth/AirdropERC20"
+                    target="_blank"
+                  >
+                    AirdropERC20
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://thirdweb.com/thirdweb.eth/AirdropERC721"
+                    target="_blank"
+                  >
+                    AirdropERC721
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://thirdweb.com/thirdweb.eth/AirdropERC1155"
+                    target="_blank"
+                  >
+                    AirdropERC1155
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </>
+        </Box>
+      </DetailsWrapper>
+      <DetailsWrapper summary="List of contracts">
+        <Box>
+          <>
+            <div className="text-lg font-bold">
+              For sending ERC20 & native tokens
+            </div>
+            <div className="text-lg font-bold">For sending ERC721 tokens</div>
+            <div className="text-lg font-bold">For sending ERC1155 tokens</div>
           </>
         </Box>
       </DetailsWrapper>
@@ -85,7 +135,13 @@ export default function SettingsTab() {
                 </div>
                 {item.subnetId && (
                   <div>
-                    <b>Subnet ID</b>: {item.subnetId}
+                    <b>Subnet ID</b>: {truncateEthAddress(item.subnetId)}{" "}
+                    <button
+                      className="border border-white px-1"
+                      onClick={() => copyTextToClipboard(item.subnetId)}
+                    >
+                      Copy
+                    </button>
                   </div>
                 )}
                 <div>

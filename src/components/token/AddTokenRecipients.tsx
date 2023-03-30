@@ -1,9 +1,9 @@
 import { useAddress } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
-import { isAddress } from "ethers/lib/utils";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { TErc20BalanceData, TEvmAddress } from "../../types";
+import { TErc20BalanceData, TEvmAddress, TValidateError } from "../../types";
+import { validateInputAddress } from "../../utils/misc";
 import GreenCheckMark from "../icons/GreenCheckmark";
 
 const ConfirmTokenTransfer = dynamic(() => import("./ConfirmTokenTransfer"), {
@@ -20,11 +20,6 @@ export type TRecipient = {
   amount: number;
 };
 
-type TError = {
-  valid: boolean;
-  message?: string;
-};
-
 export default function AddTokenRecipients(props: Props) {
   const { balanceData, tokenAddress, cancelFn } = props;
   const address = useAddress();
@@ -33,6 +28,7 @@ export default function AddTokenRecipients(props: Props) {
   const [recipients, setRecipients] = useState<TRecipient[]>([
     { to: "0xd587924ce50c703182409d7d45eb79a9fbe6b49d", amount: 1 },
   ]);
+  const excludedContractAddresses = [NATIVE_TOKEN_ADDRESS, tokenAddress];
   const totalAmountToSend: number = recipients.length
     ? recipients
         .map((item) => (item.amount < 0 ? 0 : item.amount))
@@ -60,35 +56,8 @@ export default function AddTokenRecipients(props: Props) {
     recipients.splice(index, 1);
     setRecipients([...recipients]);
   };
-  const validateInputAddress = (value: string): TError => {
-    if (!value) {
-      return {
-        valid: false,
-        message: "Address is empty",
-      };
-    }
-    if (value === address) {
-      return {
-        valid: false,
-        message: "This is your own address",
-      };
-    }
-    if ([tokenAddress, NATIVE_TOKEN_ADDRESS].includes(value)) {
-      return {
-        valid: false,
-        message: "This is a contract address",
-      };
-    }
-    if (!isAddress(value))
-      return {
-        valid: false,
-        message: "Address is invalid",
-      };
-    return {
-      valid: true,
-    };
-  };
-  const validateTokenAmount = (value: number): TError => {
+
+  const validateTokenAmount = (value: number): TValidateError => {
     if (value <= 0) return { valid: false, message: "Amount must be > 0" };
     if (value > availableBalance)
       return { valid: false, message: "Amount exceeds available balance" };
@@ -104,8 +73,8 @@ export default function AddTokenRecipients(props: Props) {
     if (
       recipients.some(
         (item) =>
-          !validateInputAddress(item.to).valid ||
-          !validateTokenAmount(item.amount).valid
+          !validateInputAddress(item.to, excludedContractAddresses, address)
+            .valid || !validateTokenAmount(item.amount).valid
       )
     ) {
       setCanSubmit(false);
@@ -139,7 +108,11 @@ export default function AddTokenRecipients(props: Props) {
           )}
           <div className="flex flex-col mt-2">
             {recipients.map((item, index) => {
-              const addressErrorMsg = validateInputAddress(item.to).message;
+              const addressErrorMsg = validateInputAddress(
+                item.to,
+                excludedContractAddresses,
+                address
+              ).message;
               const amountErrorMsg = validateTokenAmount(item.amount).message;
               return (
                 <div className="flex flex-row justify-center mt-2" key={index}>

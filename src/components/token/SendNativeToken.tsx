@@ -13,7 +13,6 @@ type Props = {
 export default function SendNativeToken(props: Props) {
   const { _recipients, _amounts, totalAmountToSend, uniqueRicepientAddresses } =
     props;
-  const { contract } = useContract(NATIVE_TOKEN_ADDRESS);
   const address = useAddress();
   return (
     <Web3Button
@@ -24,12 +23,11 @@ export default function SendNativeToken(props: Props) {
           NATIVE_TOKEN_ADDRESS,
           address,
           _recipients,
-          _amounts
+          _amounts,
+          {
+            value: parseEther(String(totalAmountToSend)),
+          }
         );
-      }}
-      overrides={{
-        value: parseEther("1"),
-        gasLimit: 1000000,
       }}
     >
       Batch send

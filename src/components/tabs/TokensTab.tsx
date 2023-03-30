@@ -146,7 +146,7 @@ export default function TokenTab() {
           <Box>
             <>
               <div className="font-bold text-lg">
-                Step 1: Select the token to send
+                Step 1: Select the token address to send
               </div>
               <div className="text-xs lg:w-[750px] md:w-[650px] w-[85vw]">
                 If the token you&apos;re looking for is not in the list, it
