@@ -1,3 +1,4 @@
+import { GLACIER_SUPPORTED_CHAINS } from "../../constants/glacier-api";
 import Box from "../shared/Box";
 import DetailsWrapper from "../shared/DetailsWrapper";
 
@@ -64,6 +65,41 @@ export default function SettingsTab() {
                 Thirdweb.
               </a>
             </div>
+          </>
+        </Box>
+      </DetailsWrapper>
+      <DetailsWrapper
+        summary={`Supported chains (${GLACIER_SUPPORTED_CHAINS.length})`}
+      >
+        <Box>
+          <>
+            {GLACIER_SUPPORTED_CHAINS.map((item) => (
+              <div className="flex flex-col border-b border-gray-400 mb-4 pb-4">
+                <div>
+                  <b>Name</b>: {item.chainName} -{" "}
+                  {item.isTestnet ? "(Testnet)" : "(Mainnet)"}
+                </div>
+                <div>
+                  {" "}
+                  <b>Chain ID</b>: {item.chainId}
+                </div>
+                {item.subnetId && (
+                  <div>
+                    <b>Subnet ID</b>: {item.subnetId}
+                  </div>
+                )}
+                <div>
+                  <b>Explorer</b>:{" "}
+                  <a
+                    href={item.explorerUrl}
+                    target="_blank"
+                    className="underline text-blue-500"
+                  >
+                    {item.explorerUrl.replace("https://", "")}
+                  </a>
+                </div>
+              </div>
+            ))}
           </>
         </Box>
       </DetailsWrapper>
