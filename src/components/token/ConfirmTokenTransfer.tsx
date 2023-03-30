@@ -1,6 +1,5 @@
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { TErc20BalanceData, TEvmAddress } from "../../types";
-import { convertToWei } from "../../utils/number";
 import { TRecipient } from "./AddTokenRecipients";
 import dynamic from "next/dynamic";
 
@@ -22,10 +21,8 @@ type Props = {
 export default function ConfirmTokenTransfer(props: Props) {
   const { recipients, totalAmountToSend, balanceData, tokenAddress, cancelFn } =
     props;
-  const uniqueRicepientAddresses = [
-    ...new Set(recipients.map((item) => item.to)),
-  ];
-  const arr: TRecipient[] = props.recipients.reduce(
+
+  const uniqueRecipients: TRecipient[] = recipients.reduce(
     (acc: TRecipient[], current) => {
       const existingItemIndex = acc.findIndex(
         (item: TRecipient) => item.to === current.to
@@ -39,32 +36,26 @@ export default function ConfirmTokenTransfer(props: Props) {
     },
     []
   );
-  const _recipients: TEvmAddress[] = arr.map((item) => item.to as TEvmAddress);
-  const _amounts = arr.map((item) => convertToWei(item.amount));
-
   return (
     <div className="flex flex-col border border-gray-400 p-2 mt-2">
       <div className="font-bold text-lg">Step 3: Send transaction</div>
       <div>
         You are sending {totalAmountToSend} ${balanceData.symbol} to{" "}
-        {uniqueRicepientAddresses.length} recipient(s).
+        {uniqueRecipients.length} recipient(s).
         <br />
       </div>
 
       <div className="mx-auto mt-4">
         {tokenAddress === NATIVE_TOKEN_ADDRESS ? (
           <SendNativeToken
-            _recipients={_recipients}
-            _amounts={_amounts}
+            uniqueRecipients={uniqueRecipients}
             totalAmountToSend={totalAmountToSend}
-            uniqueRicepientAddresses={uniqueRicepientAddresses}
           />
         ) : (
           <SendErc20Token
-            recipients={recipients}
+            recipients={uniqueRecipients}
             tokenAddress={tokenAddress}
             totalAmountToSend={totalAmountToSend}
-            uniqueRicepientAddresses={uniqueRicepientAddresses}
           />
         )}
       </div>

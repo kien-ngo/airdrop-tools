@@ -1,4 +1,4 @@
-export const BASE_URL = "https://glacier-api.avax.network/v1";
+export const GLACIER_BASE_URL = "https://glacier-api.avax.network/v1";
 export const GLACIER_SUPPORTED_CHAINS = [
   {
     chainId: "43114",
@@ -9,7 +9,7 @@ export const GLACIER_SUPPORTED_CHAINS = [
     subnetId: "11111111111111111111111111111111LpoYY",
     vmId: "mgj786NP7uDwBCcq6YwThhaN8FLyybkCa4zBWTQbNgmK6k9A6",
     vmName: "EVM",
-    explorerUrl: "https://snowtrace.io",
+    explorerUrl: "https://avascan.info",
     rpcUrl: "https://api.avax.network/ext/bc/C/rpc",
     wsUrl: "wss://api.avax.network/ext/bc/C/ws",
     isTestnet: false,
@@ -35,7 +35,7 @@ export const GLACIER_SUPPORTED_CHAINS = [
     subnetId: "11111111111111111111111111111111LpoYY",
     vmId: "mgj786NP7uDwBCcq6YwThhaN8FLyybkCa4zBWTQbNgmK6k9A6",
     vmName: "EVM",
-    explorerUrl: "https://testnet.snowtrace.io",
+    explorerUrl: "https://testnet.avascan.info",
     rpcUrl: "https://api.avax-test.network/ext/bc/C/rpc",
     wsUrl: "wss://api.avax-test.network/ext/bc/C/ws",
     isTestnet: true,

@@ -1,5 +1,6 @@
 import { useAddress, useContract, useTokenBalance } from "@thirdweb-dev/react";
 import { TEvmAddress } from "../../types";
+import LoadingSpinner from "../shared/LoadingSpinner";
 import AddTokenRecipients from "./AddTokenRecipients";
 
 export default function Erc20RecipientsWrapper({
@@ -17,7 +18,11 @@ export default function Erc20RecipientsWrapper({
     error,
   } = useTokenBalance(contract, address);
   if (isLoading || !balanceData)
-    return <div className="mx-auto">Loading...</div>;
+    return (
+      <div className="mx-auto mt-4">
+        <LoadingSpinner />
+      </div>
+    );
   return (
     <AddTokenRecipients
       balanceData={balanceData}

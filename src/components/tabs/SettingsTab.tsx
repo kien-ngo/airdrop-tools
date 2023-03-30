@@ -1,3 +1,9 @@
+import {
+  SUPPORTED_CHAINS,
+  TRANSFER_ERC1155_CONTRACTS,
+  TRANSFER_ERC721_CONTRACTS,
+  TRANSFER_TOKEN_CONTRACTS,
+} from "../../constants/contract";
 import { GLACIER_SUPPORTED_CHAINS } from "../../constants/glacier-api";
 import { copyTextToClipboard } from "../../utils/misc";
 import { truncateEthAddress } from "../../utils/string";
@@ -5,6 +11,9 @@ import Box from "../shared/Box";
 import DetailsWrapper from "../shared/DetailsWrapper";
 
 export default function SettingsTab() {
+  const supportedChains = GLACIER_SUPPORTED_CHAINS.filter((item) =>
+    SUPPORTED_CHAINS.includes(Number(item.chainId))
+  );
   return (
     <>
       <DetailsWrapper summary="Configs">
@@ -71,11 +80,10 @@ export default function SettingsTab() {
               >
                 Thirdweb
               </a>
-              . You can deploy your own contracts and apply them to the `List of
-              contracts` below.
+              .
             </div>
             <div className="mt-3">
-              Deploy:
+              Deploy now:
               <br />
               <ul className="list-disc ml-5 underline">
                 <li>
@@ -110,21 +118,95 @@ export default function SettingsTab() {
       <DetailsWrapper summary="List of contracts">
         <Box>
           <>
-            <div className="text-lg font-bold">
-              For sending ERC20 & native tokens
-            </div>
-            <div className="text-lg font-bold">For sending ERC721 tokens</div>
-            <div className="text-lg font-bold">For sending ERC1155 tokens</div>
+            <details>
+              <summary className="font-bold cursor-pointer">
+                For sending ERC20 & native tokens
+              </summary>
+              <div className="flex flex-col pl-4">
+                {TRANSFER_TOKEN_CONTRACTS.map((item) => (
+                  <div
+                    className="flex flex-col border-b border-gray-400 mt-2"
+                    key={item.chainId}
+                  >
+                    {item.chainName} | {item.chainId}
+                    <br />
+                    <div>
+                      Contract: {truncateEthAddress(item.contract)}{" "}
+                      <button
+                        className="border border-white px-1"
+                        onClick={() => copyTextToClipboard(item.contract)}
+                      >
+                        Copy
+                      </button>{" "}
+                    </div>
+                    <br />
+                  </div>
+                ))}
+              </div>
+            </details>
+            <details className="mt-10">
+              <summary className="font-bold cursor-pointer">
+                For sending ERC721 tokens
+              </summary>
+              <div className="flex flex-col pl-4">
+                {TRANSFER_ERC721_CONTRACTS.map((item) => (
+                  <div
+                    className="flex flex-col border-b border-gray-400 mt-2"
+                    key={item.chainId}
+                  >
+                    {item.chainName} | {item.chainId}
+                    <br />
+                    <div>
+                      Contract: {truncateEthAddress(item.contract)}{" "}
+                      <button
+                        className="border border-white px-1"
+                        onClick={() => copyTextToClipboard(item.contract)}
+                      >
+                        Copy
+                      </button>{" "}
+                    </div>
+                    <br />
+                  </div>
+                ))}
+              </div>
+            </details>
+            <details className="mt-10">
+              <summary className="font-bold cursor-pointer">
+                For sending ERC1155 tokens
+              </summary>
+              <div className="flex flex-col pl-4">
+                {TRANSFER_ERC1155_CONTRACTS.map((item) => (
+                  <div
+                    className="flex flex-col border-b border-gray-400 mt-2"
+                    key={item.chainId}
+                  >
+                    {item.chainName} | {item.chainId}
+                    <br />
+                    <div>
+                      Contract: {truncateEthAddress(item.contract)}{" "}
+                      <button
+                        className="border border-white px-1"
+                        onClick={() => copyTextToClipboard(item.contract)}
+                      >
+                        Copy
+                      </button>{" "}
+                    </div>
+                    <br />
+                  </div>
+                ))}
+              </div>
+            </details>
           </>
         </Box>
       </DetailsWrapper>
-      <DetailsWrapper
-        summary={`Supported chains (${GLACIER_SUPPORTED_CHAINS.length})`}
-      >
+      <DetailsWrapper summary={`Supported chains (${supportedChains.length})`}>
         <Box>
           <>
-            {GLACIER_SUPPORTED_CHAINS.map((item) => (
-              <div className="flex flex-col border-b border-gray-400 mb-4 pb-4">
+            {supportedChains.map((item) => (
+              <div
+                className="flex flex-col border-b border-gray-400 mb-4 pb-4"
+                key={item.chainId}
+              >
                 <div>
                   <b>Name</b>: {item.chainName} -{" "}
                   {item.isTestnet ? "(Testnet)" : "(Mainnet)"}

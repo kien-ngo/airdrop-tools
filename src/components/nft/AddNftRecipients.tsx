@@ -2,6 +2,10 @@ import { useAddress, useContract, useOwnedNFTs } from "@thirdweb-dev/react";
 import { useEffect, useState } from "react";
 import { TEvmAddress, TValidateError } from "../../types";
 import { validateInputAddress } from "../../utils/misc";
+import GreenCheckMark from "../icons/GreenCheckmark";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import SendMultipleNfts from "./SendMultipleNfts";
+import SendSingleNft from "./SendSingleNft";
 
 type Props = {
   tokenAddress: TEvmAddress;
@@ -27,10 +31,11 @@ export default function AddNftRecipients(props: Props) {
     isLoading: loadingOwnedNfts,
     error,
   } = useOwnedNFTs(nftContract, address);
+  const nftType = ownedNfts && ownedNfts.length ? ownedNfts[0].type : "";
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [showNextStep, setShowNextStep] = useState<boolean>(false);
   const [recipients, setRecipients] = useState<TNftRecipient[]>([
-    { to: "0xd587924ce50c703182409d7d45eb79a9fbe6b49d", tokenId: 1 },
+    { to: "", tokenId: -1 },
   ]);
   const availableTokenIds =
     !ownedNfts || !ownedNfts.length
@@ -46,7 +51,7 @@ export default function AddNftRecipients(props: Props) {
     setRecipients([...recipients]);
   };
   const addMoreRecipients = () => {
-    recipients.push({ to: "", tokenId: 0 });
+    recipients.push({ to: "", tokenId: -1 });
     setRecipients([...recipients]);
   };
   const deleteRecipient = (index: number) => {
@@ -58,15 +63,12 @@ export default function AddNftRecipients(props: Props) {
   };
 
   const validateTokenId = (tokenId: number): TValidateError => {
-    // if (tokenId < 0) return {
-    //     valid: false,
-    //     message: 'Invalid token id'
-    // }
-    // if (!availableTokenIds.includes(tokenId)) return {
-    //     valid: false,
-    //     message: 'You don\'t own this token(id)'
-    // }
-    if (recipients.find((item) => item.tokenId === tokenId))
+    if (tokenId === -1)
+      return {
+        valid: false,
+        message: "Please select a token id",
+      };
+    if (recipients.filter((item) => item.tokenId === tokenId).length > 1)
       return {
         valid: false,
         message: "Token ID already exists",
@@ -90,7 +92,13 @@ export default function AddNftRecipients(props: Props) {
     }
     setCanSubmit(true);
   }, [recipients]);
-  if (loadingNftContract || loadingOwnedNfts) return <div>Loading...</div>;
+
+  if (loadingNftContract || loadingOwnedNfts)
+    return (
+      <div className="mx-auto mt-4">
+        <LoadingSpinner />
+      </div>
+    );
   return (
     <>
       <div className="flex flex-col border border-gray-400 p-2 mt-2">
@@ -147,7 +155,14 @@ export default function AddNftRecipients(props: Props) {
                 </div>
                 <div className="flex flex-col">
                   {index === 0 && <div>Token Id</div>}
-                  <select className="h-[32px] ml-2">
+                  <select
+                    className={`h-[32px] ml-2 ${
+                      tokenIdErrorMsg ? "border border-red-500" : ""
+                    }`}
+                    onChange={(e) =>
+                      updateTokenId(index, Number(e.target.value))
+                    }
+                  >
                     <option value="TokenId">TokenId</option>
                     {availableTokenIds.map((id) => (
                       <option key={id} value={id}>
@@ -168,7 +183,7 @@ export default function AddNftRecipients(props: Props) {
               </div>
             );
           })}
-          {!showNextStep && (
+          {!showNextStep ? (
             <>
               <button
                 disabled={showNextStep}
@@ -193,9 +208,56 @@ export default function AddNftRecipients(props: Props) {
                 </button>
               </div>
             </>
+          ) : (
+            <div className="ml-auto">
+              <GreenCheckMark />
+            </div>
           )}
         </div>
       </div>
+      {showNextStep && (
+        <div className="flex flex-col border border-gray-400 p-2 mt-2">
+          <div className="font-bold text-lg">Step 3: Send transaction</div>
+          <div>
+            You are sending {recipients.length} {collectionName} to{" "}
+            {recipients.length} recipient(s).
+            <br />
+          </div>
+
+          <div className="mx-auto mt-4">
+            {recipients.length === 1 ? (
+              // If the user is only sending 1 NFT, we can use the prebuilt hook from thirdweb, no need to call the contract
+              <SendSingleNft
+                tokenAddress={tokenAddress}
+                nftContract={nftContract!}
+                recipient={recipients[0]}
+              />
+            ) : (
+              <>
+                {nftType ? (
+                  <SendMultipleNfts
+                    tokenAddress={tokenAddress}
+                    nftContract={nftContract!}
+                    recipients={recipients}
+                    nftType={nftType}
+                    address={address!}
+                  />
+                ) : (
+                  <div>Error: NFT Type undeteced</div>
+                )}
+              </>
+            )}
+          </div>
+          <div className="mx-auto mt-4">
+            <button
+              onClick={() => cancelFn(undefined)}
+              className="border border-red-500 px-4 rounded-md hover:text-white hover:bg-red-500 duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

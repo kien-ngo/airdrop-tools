@@ -5,22 +5,17 @@ import {
   Web3Button,
 } from "@thirdweb-dev/react";
 import { TEvmAddress } from "../../types";
+import LoadingSpinner from "../shared/LoadingSpinner";
 import { TRecipient } from "./AddTokenRecipients";
 
 type Props = {
   recipients: TRecipient[];
   tokenAddress: TEvmAddress;
   totalAmountToSend: number;
-  uniqueRicepientAddresses: string[];
 };
 
 export default function SendErc20Token(props: Props) {
-  const {
-    recipients,
-    tokenAddress,
-    uniqueRicepientAddresses,
-    totalAmountToSend,
-  } = props;
+  const { recipients, tokenAddress, totalAmountToSend } = props;
   const { contract: tokenContract, isLoading: loadingTokenContract } =
     useContract(tokenAddress);
   const { mutateAsync: transferBatchToken } =
@@ -28,16 +23,20 @@ export default function SendErc20Token(props: Props) {
   const { mutate: transferTokens } = useTransferToken(tokenContract);
 
   if (!tokenAddress || loadingTokenContract) {
-    return <div className="mx-auto mt-2">Loading...</div>;
+    return (
+      <div className="mx-auto mt-2">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
-  if (uniqueRicepientAddresses.length === 1) {
+  if (recipients.length === 1) {
     return (
       <Web3Button
         contractAddress={tokenAddress}
         action={() =>
           transferTokens({
-            to: uniqueRicepientAddresses[0], // Address to transfer to
+            to: recipients[0].to, // Address to transfer to
             amount: totalAmountToSend, // Amount to transfer
           })
         }

@@ -1,6 +1,9 @@
 import { useAddress, useNetwork } from "@thirdweb-dev/react";
 import { useEffect, useState } from "react";
-import { BASE_URL, GLACIER_SUPPORTED_CHAINS } from "../constants/glacier-api";
+import {
+  GLACIER_BASE_URL,
+  GLACIER_SUPPORTED_CHAINS,
+} from "../constants/glacier-api";
 import { TErc20, TListErc20Balances } from "../types/glacier-api";
 
 export default function useFetchErc20Tokens() {
@@ -17,7 +20,7 @@ export default function useFetchErc20Tokens() {
     setIsLoading(true);
     try {
       const res: TListErc20Balances = await fetch(
-        `${BASE_URL}/chains/${chainId}/addresses/${address}/balances:listErc20?currency=usd&pageSize=100`
+        `${GLACIER_BASE_URL}/chains/${chainId}/addresses/${address}/balances:listErc20?currency=usd&pageSize=100`
       ).then((r) => r.json());
       setErc20Tokens(res.erc20TokenBalances);
     } catch (err) {

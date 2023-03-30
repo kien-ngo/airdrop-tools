@@ -26,7 +26,7 @@ export default function AddTokenRecipients(props: Props) {
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [showNextStep, setShowNextStep] = useState<boolean>(false);
   const [recipients, setRecipients] = useState<TRecipient[]>([
-    { to: "0xd587924ce50c703182409d7d45eb79a9fbe6b49d", amount: 1 },
+    { to: "", amount: 0 },
   ]);
   const excludedContractAddresses = [NATIVE_TOKEN_ADDRESS, tokenAddress];
   const totalAmountToSend: number = recipients.length
@@ -38,7 +38,7 @@ export default function AddTokenRecipients(props: Props) {
     : 0;
   const availableBalance = balanceData?.displayValue
     ? parseFloat(balanceData.displayValue) - totalAmountToSend
-    : "_N/A_";
+    : 0;
   const updateTokenAmount = (index: number, amount: number) => {
     recipients[index].amount = amount ? amount : 0;
     setRecipients([...recipients]);
