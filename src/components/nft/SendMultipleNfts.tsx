@@ -1,4 +1,4 @@
-import { useNetwork, Web3Button } from "@thirdweb-dev/react";
+import { useChainId, Web3Button } from "@thirdweb-dev/react";
 import { SmartContract } from "@thirdweb-dev/sdk";
 import { BaseContract } from "ethers";
 import {
@@ -22,16 +22,11 @@ export default function SendMultipleNfts(props: Props) {
     nftType === "ERC721"
       ? TRANSFER_ERC721_CONTRACTS
       : TRANSFER_ERC1155_CONTRACTS;
-  const [{ data: chainData }] = useNetwork();
+  const chainId = useChainId();
   const AIRDROP_CONTRACT =
-    contracts.find((item) => item.chainId === chainData.chain?.id)?.contract ??
-    "";
+    contracts.find((item) => item.chainId === chainId)?.contract ?? "";
   if (!AIRDROP_CONTRACT) {
-    return (
-      <div>
-        Error: Could not find contract for chainId: {chainData.chain?.id}
-      </div>
-    );
+    return <div>Error: Could not find contract for chainId: {chainId}</div>;
   }
   return (
     <Web3Button

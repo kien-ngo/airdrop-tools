@@ -1,4 +1,4 @@
-import { useAddress, useNetwork, Web3Button } from "@thirdweb-dev/react";
+import { useAddress, useChainId, Web3Button } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { parseEther } from "ethers/lib/utils";
 import { TRANSFER_TOKEN_CONTRACTS } from "../../constants/contract";
@@ -14,15 +14,12 @@ type Props = {
 export default function SendNativeToken(props: Props) {
   const { uniqueRecipients, totalAmountToSend } = props;
   const address = useAddress();
-  const [{ data: chainData }] = useNetwork();
+  const chainId = useChainId();
   const contractAddress =
-    TRANSFER_TOKEN_CONTRACTS.find(
-      (item) => item.chainId === chainData.chain?.id
-    )?.contract ?? "";
+    TRANSFER_TOKEN_CONTRACTS.find((item) => item.chainId === chainId)
+      ?.contract ?? "";
   if (!contractAddress)
-    <div className="mx-auto">
-      Error: could not find chainId: {chainData.chain?.id}
-    </div>;
+    <div className="mx-auto">Error: could not find chainId: {chainId}</div>;
   const _recipients: TEvmAddress[] = uniqueRecipients.map(
     (item) => item.to as TEvmAddress
   );

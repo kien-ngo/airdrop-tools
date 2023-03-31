@@ -1,4 +1,4 @@
-import { useBalance, useNetwork } from "@thirdweb-dev/react";
+import { useActiveChain, useBalance } from "@thirdweb-dev/react";
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import { isAddress } from "ethers/lib/utils";
 import dynamic from "next/dynamic";
@@ -25,7 +25,8 @@ const Erc20RecipientsWrapper = dynamic(
 
 export default function TokenTab() {
   const { data: balanceData, isLoading } = useBalance(NATIVE_TOKEN_ADDRESS);
-  const [{ data: chainData, error, loading: loadingNetwork }] = useNetwork();
+  const chainData = useActiveChain();
+  const nativeTokenSymbol = chainData?.nativeCurrency.symbol;
   const [showLowBalances, setShowLowBalances] = useState<boolean>(false);
   const [lowBalanceThreshhold, setLowBalanceThreshold] = useState<number>(0.5);
   const [selectedTokenAddress, setSelectedTokenAddress] =
@@ -68,8 +69,7 @@ export default function TokenTab() {
         <div className="text-2xl pl-2">Your tokens</div>
         <div className="pl-2">
           <div>
-            {chainData.chain?.nativeCurrency?.symbol} balance:{" "}
-            {balanceData?.displayValue}
+            {nativeTokenSymbol} balance: {balanceData?.displayValue}
           </div>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function TokenTab() {
                   value={NATIVE_TOKEN_ADDRESS}
                   className="bg-warning text-black"
                 >
-                  ${chainData.chain?.nativeCurrency?.symbol} (Native token)
+                  ${nativeTokenSymbol} (Native token)
                 </option>
                 {erc20Tokens.map((item) => (
                   <option

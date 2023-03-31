@@ -1,4 +1,4 @@
-import { useAddress, useNetwork } from "@thirdweb-dev/react";
+import { useAddress, useChainId } from "@thirdweb-dev/react";
 import { useEffect, useState } from "react";
 import {
   GLACIER_BASE_URL,
@@ -8,14 +8,13 @@ import { TCollectibleBalances, TNft } from "../types/glacier-api";
 
 export default function useFetchNfts() {
   const address = useAddress();
-  const [{ data: chainData, error, loading: loadingNetwork }] = useNetwork();
-  const chainId = chainData.chain?.id;
+  const chainId = useChainId();
   const [nfts, setNfts] = useState<TNft[]>([]);
   const isChainIdSupported = GLACIER_SUPPORTED_CHAINS.find(
     (item) => Number(item.chainId) === chainId
   );
   const [errorMsg, setErrorMsg] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(loadingNetwork);
+  const [isLoading, setIsLoading] = useState(false);
   const fetchNfts = async () => {
     setIsLoading(true);
     try {
