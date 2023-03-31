@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { TEvmAddress, TValidateError } from "../../types";
 import { validateInputAddress } from "../../utils/misc";
 import GreenCheckMark from "../icons/GreenCheckmark";
+import ExportDataBtn from "../shared/ExportDataBtn";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import SendMultipleNfts from "./SendMultipleNfts";
 import SendSingleNft from "./SendSingleNft";
@@ -21,16 +22,13 @@ export type TNftRecipient = {
 export default function AddNftRecipients(props: Props) {
   const { tokenAddress, cancelFn, collectionName } = props;
   const address = useAddress();
-  const {
-    contract: nftContract,
-    isLoading: loadingNftContract,
-    error: useContractError,
-  } = useContract(tokenAddress);
-  const {
-    data: ownedNfts,
-    isLoading: loadingOwnedNfts,
-    error,
-  } = useOwnedNFTs(nftContract, address);
+  const { contract: nftContract, isLoading: loadingNftContract } =
+    useContract(tokenAddress);
+  const { data: ownedNfts, isLoading: loadingOwnedNfts } = useOwnedNFTs(
+    // @ts-ignore
+    nftContract,
+    address
+  );
   const nftType = ownedNfts && ownedNfts.length ? ownedNfts[0].type : "";
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [showNextStep, setShowNextStep] = useState<boolean>(false);
@@ -209,9 +207,14 @@ export default function AddNftRecipients(props: Props) {
               </div>
             </>
           ) : (
-            <div className="ml-auto">
-              <GreenCheckMark />
-            </div>
+            <>
+              <div className="mx-auto mt-6">
+                <ExportDataBtn data={recipients} />
+              </div>
+              <div className="ml-auto">
+                <GreenCheckMark />
+              </div>
+            </>
           )}
         </div>
       </div>

@@ -16,6 +16,7 @@ export default function SendSingleNft(props: Props) {
     mutateAsync: transferNFT,
     isLoading,
     error,
+    //@ts-ignore
   } = useTransferNFT(nftContract);
   return (
     <Web3Button

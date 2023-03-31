@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { TErc20BalanceData, TEvmAddress, TValidateError } from "../../types";
 import { validateInputAddress } from "../../utils/misc";
 import GreenCheckMark from "../icons/GreenCheckmark";
+import ExportDataBtn from "../shared/ExportDataBtn";
 
 const ConfirmTokenTransfer = dynamic(() => import("./ConfirmTokenTransfer"), {
   ssr: false,
@@ -165,7 +166,7 @@ export default function AddTokenRecipients(props: Props) {
                 </div>
               );
             })}
-            {!showNextStep && (
+            {!showNextStep ? (
               <>
                 <button
                   disabled={showNextStep}
@@ -190,6 +191,10 @@ export default function AddTokenRecipients(props: Props) {
                   </button>
                 </div>
               </>
+            ) : (
+              <div className="mx-auto mt-4">
+                <ExportDataBtn data={recipients} />
+              </div>
             )}
           </div>
         </div>
