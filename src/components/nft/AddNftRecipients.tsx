@@ -7,6 +7,7 @@ import ExportDataBtn from "../shared/ExportDataBtn";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import SendMultipleNfts from "./SendMultipleNfts";
 import SendSingleNft from "./SendSingleNft";
+import UploadNftRecipients from "./UploadNftRecipients";
 
 type Props = {
   tokenAddress: TEvmAddress;
@@ -33,7 +34,9 @@ export default function AddNftRecipients(props: Props) {
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [showNextStep, setShowNextStep] = useState<boolean>(false);
   const [recipients, setRecipients] = useState<TNftRecipient[]>([
-    { to: "", tokenId: -1 },
+    { to: "0x123452ebb610e780b25101dc7f2eefa788db8e0a", tokenId: 0 },
+    { to: "0x123456149f35dc84101c93d71c9c7d95487b8ecc", tokenId: 72 },
+    { to: "0x444444e454Bc14E45643050156a86Fccc4c4d4fD", tokenId: 47 },
   ]);
   const availableTokenIds =
     !ownedNfts || !ownedNfts.length
@@ -120,6 +123,10 @@ export default function AddNftRecipients(props: Props) {
               </select>
             </div>
           )}
+          <UploadNftRecipients
+            disabled={showNextStep}
+            onCompleted={setRecipients}
+          />
         </div>
         <div className="flex flex-col mt-2">
           {recipients.map((item, index) => {
@@ -154,6 +161,11 @@ export default function AddNftRecipients(props: Props) {
                 <div className="flex flex-col">
                   {index === 0 && <div>Token Id</div>}
                   <select
+                    defaultValue={
+                      recipients[index].tokenId >= 0
+                        ? recipients[index].tokenId
+                        : "TokenId"
+                    }
                     className={`h-[32px] ml-2 ${
                       tokenIdErrorMsg ? "border border-red-500" : ""
                     }`}
@@ -163,7 +175,13 @@ export default function AddNftRecipients(props: Props) {
                   >
                     <option value="TokenId">TokenId</option>
                     {availableTokenIds.map((id) => (
-                      <option key={id} value={id}>
+                      <option
+                        key={id}
+                        value={id}
+                        defaultValue={
+                          recipients[index] ? recipients[index].tokenId : -1
+                        }
+                      >
                         {id}
                       </option>
                     ))}

@@ -6,6 +6,7 @@ import { TErc20BalanceData, TEvmAddress, TValidateError } from "../../types";
 import { validateInputAddress } from "../../utils/misc";
 import GreenCheckMark from "../icons/GreenCheckmark";
 import ExportDataBtn from "../shared/ExportDataBtn";
+import UploadTokenRecipients from "./UploadTokenRecipients";
 
 const ConfirmTokenTransfer = dynamic(() => import("./ConfirmTokenTransfer"), {
   ssr: false,
@@ -101,10 +102,10 @@ export default function AddTokenRecipients(props: Props) {
               {availableBalance}
             </span>
           </div>
+          <UploadTokenRecipients disabled={showNextStep} onCompleted={setRecipients} />
           {amountToSendToLarge && (
-            <div className="text-red-500 text-xm">
-              Warning: Amount to send exceeded available balance. You also might
-              not have enough for gas fee
+            <div className="text-red-500 text-xm text-center">
+              Warning: Amount to send exceeded available balance.
             </div>
           )}
           <div className="flex flex-col mt-2">
@@ -138,13 +139,11 @@ export default function AddTokenRecipients(props: Props) {
                     )}
                   </div>
                   <div className="flex flex-col">
-                    {index === 0 && <div>Amount</div>}
+                    {index === 0 && <div>&nbsp;Amount</div>}
                     <input
                       disabled={showNextStep}
                       defaultValue={item.amount}
                       type="number"
-                      min={0}
-                      max={availableBalance}
                       placeholder="Amount"
                       className={`disabled:cursor-not-allowed max-w-[100px] ml-1 pl-1 py-1 text-center h-[32px] ${
                         amountErrorMsg ? "border border-red-500" : ""
